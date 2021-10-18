@@ -18,6 +18,10 @@ sys_exit(void)
 }
 
 uint64
+sys_show(void){
+  return 143;
+}
+uint64
 sys_getpid(void)
 {
   return myproc()->pid;
@@ -37,6 +41,8 @@ sys_wait(void)
     return -1;
   return wait(p);
 }
+
+
 
 uint64
 sys_sbrk(void)
