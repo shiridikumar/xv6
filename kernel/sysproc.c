@@ -19,7 +19,12 @@ sys_exit(void)
 
 uint64
 sys_show(void){
-  return 143;
+  uint64 p;
+  if(argaddr(0,&p)<0){
+    return -1;
+  }
+  printf("hello akanksha i love u\n");
+  return p;
 }
 uint64
 sys_getpid(void)
