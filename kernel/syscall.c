@@ -27,10 +27,14 @@ fetchstr(uint64 addr, char *buf, int max)
 {
   struct proc *p = myproc();
   int err = copyinstr(p->pagetable, buf, addr, max);
-  if(err < 0)
+  if(err < 0){
+    printf("not possible\n");
     return err;
+  }
   return strlen(buf);
 }
+
+
 
 static uint64
 argraw(int n)
@@ -75,6 +79,20 @@ argaddr(int n, uint64 *ip)
 // Fetch the nth word-sized system call argument as a null-terminated string.
 // Copies into buf, at most max.
 // Returns string length if OK (including nul), -1 if error.
+
+int
+argptr(int n,char* buf)
+{
+  struct proc *p=myproc(); 
+  int k=p->trapframe->a1;
+
+  int addr=p->trapframe->a2;
+  copyinstr(p->pagetable, buf,addr,100);
+
+  return k-1;
+}
+
+
 int
 argstr(int n, char *buf, int max)
 {
@@ -145,10 +163,11 @@ syscall(void)
 
   
   if(num > 0 && num < NELEM(syscalls) && syscalls[num]) {
-    if(traced[num] && p->parent->trace_flag){
-      printf("syscall %d %s\n",num,p->name);
-    }
+
     p->trapframe->a0 = syscalls[num]();
+    if(traced[num] && p->parent->trace_flag){
+      printf("syscall %d %s %d\n",num,p->name,p->trapframe->a0);
+    }
 
   } else {
     printf("%d %s: unknown sys call %d\n",

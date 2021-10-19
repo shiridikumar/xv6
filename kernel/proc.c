@@ -316,6 +316,10 @@ fork(void)
   acquire(&np->lock);
   np->state = RUNNABLE;
   release(&np->lock);
+  if(np->parent->trace_flag==1){
+    np->trace_flag=1;
+  }
+  
 
   return pid;
 }

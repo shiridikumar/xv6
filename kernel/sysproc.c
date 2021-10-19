@@ -15,6 +15,8 @@ sys_exit(void)
   int n;
   if(argint(0, &n) < 0)
     return -1;
+  struct proc *p=myproc();
+  p->trace_flag=0;
   exit(n);
   return 0;  // not reached
 }
@@ -48,13 +50,15 @@ sys_fork(void)
 
 uint64
 sys_trace(void){
+
+  //char buff[30];
   uint64 p1;
   if(argaddr(0,&p1)<0)
     return -1;
   struct proc *p=myproc();
   traced[p1]=1;
   p->trace_flag=1;
-  printf("%d\n*******",p->pid);
+
   if(p->parent){
     p->parent->trace_flag=1;
   }
