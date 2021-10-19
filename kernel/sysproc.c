@@ -6,6 +6,8 @@
 #include "memlayout.h"
 #include "spinlock.h"
 #include "proc.h"
+extern int traced[23];
+
 
 uint64
 sys_exit(void)
@@ -23,7 +25,13 @@ sys_show(void){
   if(argaddr(0,&p)<0){
     return -1;
   }
-  printf("hello akanksha i love u\n");
+  uint64 ad;
+  if(argaddr(1,&ad)<0){
+    return -1;
+  }
+  /*else{
+    printf("%s\n",argstr(22,(char *)ad,20));
+  }*/
   return p;
 }
 uint64
@@ -36,6 +44,22 @@ uint64
 sys_fork(void)
 {
   return fork();
+}
+
+uint64
+sys_trace(void){
+  uint64 p1;
+  if(argaddr(0,&p1)<0)
+    return -1;
+  struct proc *p=myproc();
+  traced[p1]=1;
+  p->trace_flag=1;
+  printf("%d\n*******",p->pid);
+  if(p->parent){
+    p->parent->trace_flag=1;
+  }
+  return 1;
+
 }
 
 uint64

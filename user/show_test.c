@@ -1,7 +1,9 @@
 #include "user.h"
 
 void main(){
-    int x=1020;
-    printf("hello akanksha i love u %d",*show(&x));
+ 
+    trace(5);
+
+    //printf("hello akanksha i love u %d",143);
     exit(0);
 }

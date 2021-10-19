@@ -23,7 +23,8 @@ int getpid(void);
 char* sbrk(int);
 int sleep(int);
 int uptime(void);
-int* show(int*);
+int* show(int*,char*);
+int trace(int);
 
 
 // ulib.c
