@@ -18,7 +18,6 @@ sys_exit(void)
     return -1;
   struct proc *p=myproc();
   if(strncmp(p->parent->name,"sh",strlen(p->parent->name))==0 && p->trace_flag==1){
-    printf("%s\n",p->parent->name);
     for(int i=0;i<sys_length;i++){
       traced[i]=0;
     }

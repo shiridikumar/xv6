@@ -8,6 +8,7 @@ volatile static int started = 0;
 int traced[24];
 char sysnames[24][30]={"","fork","exit","wait","pipe","read","kill","exec","fstat","chdir","dup","getpid","sbrk","sleep","uptime","open","write","mknod","unlink","link","mkdir","close","show","trace"};
 int sys_length=24;
+int sysarg[]={0,1,1,1,1,3,2,2,2,1,1,1,1,1,1,2,3,2,1,2,2,1,2,3};
 
 // start() jumps here in supervisor mode on all CPUs.
 void

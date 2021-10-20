@@ -8,6 +8,7 @@
 #include "defs.h"
 extern int traced[24];
 extern char sysnames[24][30];
+extern int sysarg[24];
 
 // Fetch the uint64 at addr from the current process.
 int
@@ -162,13 +163,21 @@ syscall(void)
   struct proc *p = myproc();
   num = p->trapframe->a7;
 
-  
   if(num > 0 && num < NELEM(syscalls) && syscalls[num]) {
     p->trapframe->a0 = syscalls[num]();
     if(traced[num] && p->parent->trace_flag){
-      printf("syscall %s (%d %d %d %d) -> %d\n",sysnames[num],p->trapframe->a0,p->trapframe->a1,p->trapframe->a2,(1==0)?p->trapframe->a3:'\0',p->trapframe->a0);
-    }
+      //char endstr[]=") -> ";
+      int ar[]={p->trapframe->a0,p->trapframe->a1,p->trapframe->a2,p->trapframe->a3,p->trapframe->a4,p->trapframe->a5,p->trapframe->a6,p->trapframe->a7};
+      printf("syscall %s (",sysnames[num]);
+      printf("%d",ar[0]);
+      for(int j=1;j<sysarg[num];j++){
+        printf(" %d",ar[j]);
+      }
+      printf(") -> %d\n",ar[0]);
+      //printf("syscall %s (%d %d %d) -> %d\n",sysnames[num],p->trapframe->a0,p->trapframe->a1,p->trapframe->a2,p->trapframe->a0);
+      //printf(") -> %d\n",p->trapframe->a0);
 
+    }
   } else {
     printf("%d %s: unknown sys call %d\n",
             p->pid, p->name, num);
