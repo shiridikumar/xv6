@@ -5,7 +5,9 @@
 #include "defs.h"
 
 volatile static int started = 0;
-int traced[23];
+int traced[24];
+char sysnames[24][30]={"","fork","exit","wait","pipe","read","kill","exec","fstat","chdir","dup","getpid","sbrk","sleep","uptime","open","write","mknod","unlink","link","mkdir","close","show","trace"};
+int sys_length=24;
 
 // start() jumps here in supervisor mode on all CPUs.
 void

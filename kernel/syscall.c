@@ -6,7 +6,8 @@
 #include "proc.h"
 #include "syscall.h"
 #include "defs.h"
-extern int traced[23];
+extern int traced[24];
+extern char sysnames[24][30];
 
 // Fetch the uint64 at addr from the current process.
 int
@@ -163,10 +164,9 @@ syscall(void)
 
   
   if(num > 0 && num < NELEM(syscalls) && syscalls[num]) {
-
     p->trapframe->a0 = syscalls[num]();
     if(traced[num] && p->parent->trace_flag){
-      printf("syscall %d %s %d\n",num,p->name,p->trapframe->a0);
+      printf("syscall %s (%d %d %d %d) -> %d\n",sysnames[num],p->trapframe->a0,p->trapframe->a1,p->trapframe->a2,(1==0)?p->trapframe->a3:'\0',p->trapframe->a0);
     }
 
   } else {
