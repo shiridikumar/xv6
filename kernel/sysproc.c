@@ -79,17 +79,9 @@ sys_trace(void){
     mask=mask>>1;
 
   }
-  #ifdef akanksha
-    printf("%s\n","shiridi loves u");
-  #else
-  #ifdef shiridi
-    printf("%s\n","akanksha loves u");
-  #else
-  #ifdef defaultscheduler
-    printf("%s\n","both loves each other");
-  #endif
-  #endif
-  #endif
+
+  //#endif
+//  #endif
 
   struct proc *p=myproc();
   p->trace_flag=1;
