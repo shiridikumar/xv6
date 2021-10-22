@@ -110,5 +110,6 @@ struct proc {
   char name[16];               // Process name (debugging)
   int trace_flag;              // need to trace or not
   uint creation_time;          //creation time for the prrocess
+  int done;
 
 };

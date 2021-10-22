@@ -252,6 +252,7 @@ void userinit(void)
   p->cwd = namei("/");
 
   p->state = RUNNABLE;
+  p->creation_time=0;
 
   release(&p->lock);
 }
@@ -462,48 +463,54 @@ void scheduler(void)
 {
   //struct proc *p;
   struct cpu *c = mycpu();
-
   c->proc = 0;
-  struct proc *p=myproc();
+  //uint curr;
+  //int ind;
+  //int itr;
+  
+
 
   //##ifdef FCFS
-  /*for (;;)
+
+  for (;;)
   {
+    struct proc *p=myproc();
+    struct proc *min=myproc();
+    int curr=__INT_MAX__;
     intr_on();
-    
-    //struct proc *min;
-    if(proc->state==RUNNABLE){
-      acquire(&proc->lock); 
-    }
-    //uint curr = proc->creation_time;
-    //min = proc;
-    for (p = proc; p < &proc[NPROC]; p++)
-    {
-    
+    for(p=proc;p< &proc[NPROC];p++){
+      printf("locked   ");
       acquire(&p->lock);
-      if (p->state == RUNNABLE)
-      {
-        if (p->creation_time < curr)
-        {
-          curr = p->creation_time;
-          //min = p;
-        }
+      printf("unlocked\n");
+      printf("running %d\n",p->state);
+
+      if(p->state==RUNNABLE ){
+          if(p->creation_time < curr){
+            curr=p->creation_time;
+            min=p;
+            printf("%d-----------\n",min->pid);
+          }
       }
       release(&p->lock);
     }
+    printf("%s**************\n",min->name);
+    acquire(&min->lock);
+    min->state=RUNNING;
+    c->proc=min;
+    swtch(&c->context,&min->context);
+    c->proc=0;
+    release(&min->lock);
 
+  }
 
-    swtch(&c->context, &proc->context);
-    c->proc = 0;
-    release(&proc->lock);
-  }*/
 
   //#endif
-  for(;;){
+  /*for(;;){
     // Avoid deadlock by ensuring that devices can interrupt.
     intr_on();
 
     for(p = proc; p < &proc[NPROC]; p++) {
+      printf("---%d---%s\n",p->pid,p->name);
       acquire(&p->lock);
       if(p->state == RUNNABLE) {
         // Switch to chosen process.  It is the process's job
@@ -519,7 +526,7 @@ void scheduler(void)
       }
       release(&p->lock);
     }
-  }
+  }*/
 }
 
 // Switch to scheduler.  Must hold only p->lock
