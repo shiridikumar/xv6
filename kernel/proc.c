@@ -475,31 +475,42 @@ void scheduler(void)
   for (;;)
   {
     struct proc *p=myproc();
-    struct proc *min=myproc();
+    //struct proc *min=myproc();
     int curr=__INT_MAX__;
+    int ind=-1;
+    int itr=0;
     intr_on();
     for(p=proc;p< &proc[NPROC];p++){
-      printf("locked   ");
+      //printf("hello\n");
       acquire(&p->lock);
-      printf("unlocked\n");
-      printf("running %d\n",p->state);
-
       if(p->state==RUNNABLE ){
           if(p->creation_time < curr){
             curr=p->creation_time;
-            min=p;
-            printf("%d-----------\n",min->pid);
+            if(ind!=-1){
+              release(&(proc+ind)->lock);
+            }
+            ind=itr;
+            //c->proc=proc+ind;
+            //(proc+ind)->state=RUNNING;
+            //swtch(&c->context,&(proc+ind)->context);
+            //c->proc=0;
+            //release(&(proc+ind)->lock);
+            //itr++;
+            continue;
           }
       }
       release(&p->lock);
+      itr++;
     }
-    printf("%s**************\n",min->name);
-    acquire(&min->lock);
-    min->state=RUNNING;
-    c->proc=min;
-    swtch(&c->context,&min->context);
-    c->proc=0;
-    release(&min->lock);
+    if((proc+ind)->state==RUNNABLE)
+    { 
+      (proc+ind)->state=RUNNING;
+      c->proc=(proc+ind);
+      swtch(&c->context,&(proc+ind)->context);
+      c->proc=0;
+      release(&(proc+ind)->lock);
+    }
+
 
   }
 
