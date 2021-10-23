@@ -31,10 +31,11 @@ int main() {
   }
   for(;n > 0; n--) {
       if(waitx(0,&wtime,&rtime) >= 0) {
+        printf("%d %d\n",wtime,rtime);
           trtime += rtime;
           twtime += wtime;
       } 
   }
-  printf("Average rtime %d,  wtime %d\n", trtime / NFORK, twtime / NFORK);
+  printf("Average rtime %d,  wtime %d\n", trtime, twtime);
   exit(0);
 }

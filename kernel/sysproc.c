@@ -98,10 +98,10 @@ sys_waitx(void)
   if(argaddr(0,&arg1)<0){
     return -1;
   }
-  if(argaddr(0,&arg2)<0){
+  if(argaddr(1,&arg2)<0){
     return -1;
   }  
-  if(argaddr(0,&arg3)<0){
+  if(argaddr(2,&arg3)<0){
     return -1;
   }
   struct proc *p=myproc();
