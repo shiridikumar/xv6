@@ -38,3 +38,4 @@ entry("sleep");
 entry("uptime");
 entry("show");
 entry("trace");
+entry("waitx");

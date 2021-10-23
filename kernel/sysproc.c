@@ -79,18 +79,40 @@ sys_trace(void){
     mask=mask>>1;
 
   }
-
   //#endif
 //  #endif
 
   struct proc *p=myproc();
-  p->trace_flag=1;
-
   if(p->parent){
     p->parent->trace_flag=1;
   }
   return 0;
 
+}
+
+uint64
+sys_waitx(void)
+{
+  uint64 wtime,rtime;
+  uint64 arg1,arg2,arg3;
+  if(argaddr(0,&arg1)<0){
+    return -1;
+  }
+  if(argaddr(0,&arg2)<0){
+    return -1;
+  }  
+  if(argaddr(0,&arg3)<0){
+    return -1;
+  }
+  struct proc *p=myproc();
+  int ret=waitx(arg1,&wtime,&rtime);
+  if(copyout(p->pagetable,arg2,(char *)&wtime,sizeof(int))<0){
+    return -1;
+  }
+  if(copyout(p->pagetable,arg3,(char *)&rtime,sizeof(int))<0){
+    return -1;
+  }
+  return ret;
 }
 
 uint64

@@ -10,6 +10,7 @@ struct spinlock tickslock;
 uint ticks;
 
 extern char trampoline[], uservec[], userret[];
+extern struct proc proc[NPROC];
 
 // in kernelvec.S, calls kerneltrap().
 void kernelvec();
@@ -150,8 +151,11 @@ kerneltrap()
   }
 
   // give up the CPU if this is a timer interrupt.
-  //if(which_dev == 2 && myproc() != 0 && myproc()->state == RUNNING)
-    //yield();
+  #ifndef fcfs
+  if(which_dev == 2 && myproc() != 0 && myproc()->state == RUNNING)
+    yield();
+  #endif
+  
 
   // the yield() may have caused some traps to occur,
   // so restore trap registers for use by kernelvec.S's sepc instruction.
@@ -164,6 +168,14 @@ clockintr()
 {
   acquire(&tickslock);
   ticks++;
+  struct proc *p;
+  for(p=proc;p<&proc[NPROC];p++){
+    acquire(&p->lock);
+    if(p->state==RUNNING){
+      p->run_time++;
+    }
+    release(&p->lock);
+  }
   wakeup(&ticks);
   release(&tickslock);
 }

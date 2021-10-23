@@ -25,6 +25,7 @@ int sleep(int);
 int uptime(void);
 int* show(int*,char*);
 int trace(int,int,char **);
+int waitx(int,int*,int*);
 
 
 // ulib.c

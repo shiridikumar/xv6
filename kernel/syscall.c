@@ -6,9 +6,9 @@
 #include "proc.h"
 #include "syscall.h"
 #include "defs.h"
-extern int traced[24];
-extern char sysnames[24][30];
-extern int sysarg[24];
+extern int traced[25];
+extern char sysnames[25][30];
+extern int sysarg[25];
 
 // Fetch the uint64 at addr from the current process.
 int
@@ -127,6 +127,7 @@ extern uint64 sys_write(void);
 extern uint64 sys_uptime(void);
 extern uint64 sys_show(void);
 extern uint64 sys_trace(void);
+extern uint64 sys_waitx(void);
 
 
 static uint64 (*syscalls[])(void) = {
@@ -153,6 +154,7 @@ static uint64 (*syscalls[])(void) = {
 [SYS_close]   sys_close,
 [SYS_show]    sys_show,
 [SYS_trace]   sys_trace,
+[SYS_waitx]   sys_waitx,  
 };
 
 
@@ -170,13 +172,13 @@ syscall(void)
       int ar[]={p->trapframe->a0,p->trapframe->a1,p->trapframe->a2,p->trapframe->a3,p->trapframe->a4,p->trapframe->a5,p->trapframe->a6,p->trapframe->a7};
       printf("syscall %s (",sysnames[num]);
       printf("%d",ar[0]);
+
       for(int j=1;j<sysarg[num];j++){
         printf(" %d",ar[j]);
       }
       printf(") -> %d\n",ar[0]);
       //printf("syscall %s (%d %d %d) -> %d\n",sysnames[num],p->trapframe->a0,p->trapframe->a1,p->trapframe->a2,p->trapframe->a0);
       //printf(") -> %d\n",p->trapframe->a0);
-
     }
   } else {
     printf("%d %s: unknown sys call %d\n",
