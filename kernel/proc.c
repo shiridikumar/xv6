@@ -540,6 +540,7 @@ void scheduler(void)
               release(&(proc+ind)->lock);
             }
             ind=itr;
+            itr++;
             continue;
           }
       }
@@ -560,6 +561,7 @@ void scheduler(void)
   int curr=__INT_MAX__;
     int ind=-1;
     int itr=0;
+  //int schn=0;
     for(p=proc;p< &proc[NPROC];p++){
       acquire(&p->lock);
       if(p->state==RUNNABLE ){
@@ -567,31 +569,48 @@ void scheduler(void)
           p->nice=(p->sleep_time/(p->sleep_time+p->run_time))*10;
           int temp=((p->sp-p->nice+5)<=100)?p->sp-p->nice+5:100;
           p->dp=(temp>0)?temp:0;
+           //printf("%d %d %d %d\n",p->dp,(proc+ind)->dp,p->pid,(proc+ind)->pid);
           if(p->dp < curr){
-            curr=p->dp;
+            
             if(ind!=-1){
               release(&(proc+ind)->lock);
             }
+            //printf("%d %d %d %d %d\n",p->dp,(proc+ind)->dp,p->pid,(proc+ind)->pid,curr);
+            curr=p->dp;
             ind=itr;
+            itr++;
             continue;
           }
           else if(p->dp==curr){
-            if(p->sch_no >= (proc+ind)->sch_no){
+            if(p->sch_no > (proc+ind)->sch_no){
               if(ind!=-1){
-                printf("locked\n");
+                //printf("locked %d %d %d %d %d\n",p->dp,(proc+ind)->dp,p->pid,(proc+ind)->pid,ind);
                 release(&(proc+ind)->lock);
-                printf("unlocked\n");
+                //printf("unlocked\n");
               }
               ind=itr;
+              itr++;
               continue;
+              
+            }
+            else if(p->sch_no==(proc+ind)->sch_no){
+              if(p->creation_time < (proc+ind)->creation_time){
+                if(ind!=-1){
+                  release(&(proc+ind)->lock);
+                }
+                ind=itr;
+                itr++;
+                continue;
+              }
             }
           }
       }
       release(&p->lock);
       itr++;
     }
+
     if((proc+ind)->state==RUNNABLE)
-    { 
+    {
       (proc+ind)->state=RUNNING;
       c->proc=(proc+ind);
       swtch(&c->context,&(proc+ind)->context);
