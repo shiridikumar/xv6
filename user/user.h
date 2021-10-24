@@ -26,6 +26,7 @@ int uptime(void);
 int* show(int*,char*);
 int trace(int,int,char **);
 int waitx(int,int*,int*);
+int set_priority(int,int);
 
 
 // ulib.c
@@ -44,3 +45,4 @@ void free(void*);
 int atoi(const char*);
 int memcmp(const void *, const void *, unsigned int);
 void *memcpy(void *, const void *, unsigned int);
+

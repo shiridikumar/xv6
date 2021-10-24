@@ -23,3 +23,4 @@
 #define SYS_show   22
 #define SYS_trace  23
 #define SYS_waitx  24
+#define SYS_set_priority 25

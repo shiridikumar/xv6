@@ -8,6 +8,7 @@
 #include "proc.h"
 extern int traced[24];
 extern int sys_length;
+extern struct proc proc[NPROC];
 
 
 uint64
@@ -125,6 +126,25 @@ sys_wait(void)
 }
 
 
+uint64
+sys_set_priority(void){
+  uint64 priority;
+  uint64 pid;
+  if(argaddr(0,&priority)<0){
+    return -1;
+  }
+  if(argaddr(1,&pid)<0){
+    return -1;
+  }
+  struct proc *p;
+  for(p=proc;p<&proc[NPROC];p++){
+    if(p->pid==pid){
+      p->sp=priority;
+      printf("changed static priority of pid %d to %d\n",pid,priority);
+    }
+  }
+  return pid;
+}
 
 uint64
 sys_sbrk(void)

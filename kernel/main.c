@@ -5,10 +5,10 @@
 #include "defs.h"
 
 volatile static int started = 0;
-int traced[25];
-char sysnames[25][30]={"","fork","exit","wait","pipe","read","kill","exec","fstat","chdir","dup","getpid","sbrk","sleep","uptime","open","write","mknod","unlink","link","mkdir","close","show","trace","waitx"};
-int sys_length=25;
-int sysarg[]={0,1,1,1,1,3,2,2,2,1,1,1,1,1,1,2,3,2,1,2,2,1,2,3,3};
+int traced[26];
+char sysnames[26][30]={"","fork","exit","wait","pipe","read","kill","exec","fstat","chdir","dup","getpid","sbrk","sleep","uptime","open","write","mknod","unlink","link","mkdir","close","show","trace","waitx","set_priority"};
+int sys_length=26;
+int sysarg[]={0,1,1,1,1,3,2,2,2,1,1,1,1,1,1,2,3,2,1,2,2,1,2,3,3,2};
 
 // start() jumps here in supervisor mode on all CPUs.
 void
