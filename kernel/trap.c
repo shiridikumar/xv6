@@ -151,7 +151,7 @@ kerneltrap()
   }
 
   // give up the CPU if this is a timer interrupt.
-  #ifndef fcfs
+  #ifdef RR
   if(which_dev == 2 && myproc() != 0 && myproc()->state == RUNNING)
     yield();
   #endif
@@ -173,6 +173,9 @@ clockintr()
     acquire(&p->lock);
     if(p->state==RUNNING){
       p->run_time++;
+    }
+    if(p->state==SLEEPING){
+      p->sleep_time++;
     }
     release(&p->lock);
   }
