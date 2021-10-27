@@ -12,6 +12,7 @@ struct proc proc[NPROC];
 
 struct proc *initproc;
 
+int mlfq[5][NPROC];
 int nextpid = 1;
 struct spinlock pid_lock;
 
@@ -565,7 +566,7 @@ void scheduler(void)
     for(p=proc;p< &proc[NPROC];p++){
       acquire(&p->lock);
       if(p->state==RUNNABLE ){
-          p->sch_no++;
+         
           p->nice=(p->sleep_time/(p->sleep_time+p->run_time))*10;
           int temp=((p->sp-p->nice+5)<=100)?p->sp-p->nice+5:100;
           p->dp=(temp>0)?temp:0;
@@ -611,6 +612,7 @@ void scheduler(void)
 
     if((proc+ind)->state==RUNNABLE)
     {
+      (proc+ind)->sch_no++;
       (proc+ind)->state=RUNNING;
       c->proc=(proc+ind);
       swtch(&c->context,&(proc+ind)->context);

@@ -118,7 +118,10 @@ struct proc {
   int sp;                      //static priority
   int sleep_time;              //sleep time
   uint sch_no;                 //no of times the process has been scheduled
-           
+  int qno;                     //indicates which queue the prcoess belongs to
+  int age;                     //max contionous wait time the process has not been scheduled
+  int burst;                   //the current burst time of a process in a queue
+  
 
 
 };

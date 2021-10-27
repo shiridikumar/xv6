@@ -167,12 +167,13 @@ syscall(void)
   num = p->trapframe->a7;
 
   if(num > 0 && num < NELEM(syscalls) && syscalls[num]) {
+    int arg0=p->trapframe->a0;
     p->trapframe->a0 = syscalls[num]();
     if(traced[num] && p->parent->trace_flag){
       //char endstr[]=") -> ";
       int ar[]={p->trapframe->a0,p->trapframe->a1,p->trapframe->a2,p->trapframe->a3,p->trapframe->a4,p->trapframe->a5,p->trapframe->a6,p->trapframe->a7};
       printf("syscall %s (",sysnames[num]);
-      printf("%d",ar[0]);
+      printf("%d",arg0);
 
       for(int j=1;j<sysarg[num];j++){
         printf(" %d",ar[j]);
