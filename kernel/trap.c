@@ -11,12 +11,13 @@ uint ticks;
 
 extern char trampoline[], uservec[], userret[];
 extern struct proc proc[NPROC];
-
+extern struct proc *mlfq[5][NPROC];
+extern int current_executing_q;
+extern int qslice[5];
+extern int queue_tops[5];
 // in kernelvec.S, calls kerneltrap().
 void kernelvec();
-
 extern int devintr();
-
 void
 trapinit(void)
 {
@@ -78,9 +79,21 @@ usertrap(void)
     exit(-1);
 
   // give up the CPU if this is a timer interrupt.
-  if(which_dev == 2)
+  #ifdef MLFQ
+  if(which_dev == 2 && p != 0 && p->state == RUNNING){
+    if(p->burst >= qslice[p->qno]){
+      acquire(&p->lock);
+      demote(p);
+      release(&p->lock);
+      yield();
+    }
+  }
+  #endif
+  #ifdef RR
+  if(which_dev == 2 && myproc() != 0 && myproc()->state == RUNNING){
     yield();
-
+  }
+  #endif
   usertrapret();
 }
 
@@ -151,11 +164,21 @@ kerneltrap()
   }
 
   // give up the CPU if this is a timer interrupt.
-  #ifdef RR
-  if(which_dev == 2 && myproc() != 0 && myproc()->state == RUNNING)
-    yield();
+  #ifdef MLFQ
+  if(which_dev == 2 && myproc() != 0 && myproc()->state == RUNNING){
+    if(myproc()->burst >= qslice[myproc()->qno]){
+      acquire(&myproc()->lock);
+      demote(myproc());
+      release(&myproc()->lock);
+      yield();
+    }
+  }
   #endif
-  
+  #ifdef RR
+  if(which_dev == 2 && myproc() != 0 && myproc()->state == RUNNING){
+    yield();
+  }
+  #endif
 
   // the yield() may have caused some traps to occur,
   // so restore trap registers for use by kernelvec.S's sepc instruction.
@@ -173,12 +196,30 @@ clockintr()
     acquire(&p->lock);
     if(p->state==RUNNING){
       p->run_time++;
+      p->burst++;
     }
     if(p->state==SLEEPING){
       p->sleep_time++;
+      p->age++;
     }
     release(&p->lock);
   }
+  /*
+  #ifdef MLFQ
+  int i=0;
+  int  j=0;
+  for(i=0;i<current_executing_q;i++){
+    if(queue_tops[i]>0){
+      for(j=0;j<queue_tops[i];j++){
+        acquire(&mlfq[]->lock);
+        release(&p->lock);
+      }
+
+    }
+  }
+  #endif
+  */
+
   wakeup(&ticks);
   release(&tickslock);
 }

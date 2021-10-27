@@ -12,12 +12,16 @@ struct proc proc[NPROC];
 
 struct proc *initproc;
 
-int mlfq[5][NPROC];
+int queue_tops[5]={0,0,0,0,0};
+struct proc *mlfq[5][NPROC];
 int nextpid = 1;
 struct spinlock pid_lock;
 
+int qslice[5]={1,2,4,8,16};
+
 extern void forkret(void);
 static void freeproc(struct proc *p);
+int current_executing_q=0;
 
 extern char trampoline[]; // trampoline.S
 
@@ -43,6 +47,61 @@ void proc_mapstacks(pagetable_t kpgtbl)
     kvmmap(kpgtbl, va, (uint64)pa, PGSIZE, PTE_R | PTE_W);
   }
 }
+
+
+void demote(struct proc *p){
+  int curr_q=p->qno;
+  int i=0;
+  int ind=queue_tops[curr_q];
+  if(curr_q!=4){
+    if(queue_tops[curr_q+1]!=NPROC){
+      mlfq[curr_q+1][queue_tops[curr_q+1]]=p;
+      queue_tops[curr_q+1]++;
+
+      for(i=0;i<queue_tops[curr_q];i++){
+        if(mlfq[curr_q][i]->pid==p->pid){
+          ind=i;
+          break;
+        }
+      }
+      for(i=ind;i<queue_tops[curr_q]-1;i++){
+        mlfq[curr_q][i]=mlfq[curr_q][i+1];
+      }
+      queue_tops[curr_q]--;
+
+      p->qno=curr_q+1;
+      p->burst=0;
+    }
+  }
+}
+
+void promote(struct proc *p){
+  int curr_q=p->qno;
+  int i=0;
+  int ind=queue_tops[curr_q];
+  if(curr_q!=0){
+    if(queue_tops[curr_q-1]!=NPROC){
+      mlfq[curr_q-1][queue_tops[curr_q-1]]=p;
+      queue_tops[curr_q-1]++;
+
+      for(i=0;i<queue_tops[curr_q];i++){
+        if(mlfq[curr_q][i]->pid==p->pid){
+          ind=i;
+          break;
+        }
+      }
+      for(i=ind;i<queue_tops[curr_q]-1;i++){
+        mlfq[curr_q][i]=mlfq[curr_q][i+1];
+      }
+      queue_tops[curr_q]--;
+
+      p->qno=curr_q-1;
+      p->burst=0;
+      p->age=0;
+    }
+  }
+}
+
 
 // initialize the proc table at boot time.
 void procinit(void)
@@ -156,6 +215,13 @@ found:
   p->sp=60;
   p->dp=p->sp;
   p->sch_no=0;
+  p->qno=0;
+  p->burst=0;
+  p->age=0;
+  if(queue_tops[0]<NPROC){
+    mlfq[0][queue_tops[0]]=p;
+  }
+  queue_tops[0]++;
   return p;
 }
 
@@ -620,6 +686,44 @@ void scheduler(void)
       release(&(proc+ind)->lock);
     }
   #endif
+
+
+  #ifdef MLFQ
+  struct proc *p=myproc();
+    int i=0;
+    int j=0;
+    for(i=0;i<5;i++){
+      for(j=0;j<queue_tops[i];j++){
+        p=mlfq[i][j];
+        acquire(&p->lock);
+        if(p->state==RUNNABLE){
+          if(p->age > 10){
+            promote(p);
+           }
+        }
+        release(&p->lock);
+      }
+    }
+    i=0;
+   
+    while(i<5){
+      for(j=0;j<queue_tops[i];j++){
+        p=mlfq[i][j];
+        acquire(&p->lock);
+        if(p->state==RUNNABLE){
+          p->state = RUNNING;
+          p->age=0;
+          c->proc = p;
+          current_executing_q=i;
+          swtch(&c->context, &p->context);
+          c->proc = 0;
+        }
+        release(&p->lock);
+      }
+      i++;
+    }
+  #endif
+
   #if RR
     // Avoid deadlock by ensuring that devices can interrupt.
     struct proc *p=myproc();
@@ -720,8 +824,19 @@ void sleep(void *chan, struct spinlock *lk)
   p->sleep_time=0;
   p->state = SLEEPING;
 
+  int cur_q=p->qno;
+  int i=0;
+  int ind=queue_tops[cur_q];
+  for(i=0;i<queue_tops[cur_q];i++){
+    if(mlfq[cur_q][i]->pid==p->pid){
+      ind=i;
+      break;
+    }
+  }
+  for(i=ind;i<queue_tops[cur_q]-1;i++){
+    mlfq[cur_q][i]=mlfq[cur_q][i+1];
+  }
   sched();
-
   // Tidy up.
   p->chan = 0;
 
@@ -744,6 +859,10 @@ void wakeup(void *chan)
       if (p->state == SLEEPING && p->chan == chan)
       {
         p->state = RUNNABLE;
+        if(queue_tops[p->qno]<NPROC){
+          mlfq[p->qno][queue_tops[p->qno]]=p;
+          queue_tops[p->qno]++;
+        }
       }
       release(&p->lock);
     }

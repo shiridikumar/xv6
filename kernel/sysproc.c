@@ -6,9 +6,10 @@
 #include "memlayout.h"
 #include "spinlock.h"
 #include "proc.h"
-extern int traced[24];
+extern int traced[26];
 extern int sys_length;
 extern struct proc proc[NPROC];
+
 
 
 uint64
@@ -18,7 +19,7 @@ sys_exit(void)
   if(argint(0, &n) < 0)
     return -1;
   struct proc *p=myproc();
-  if(strncmp(p->parent->name,"sh",strlen(p->parent->name))==0 && p->trace_flag==1){
+  if(strncmp(p->parent->name,"sh",strlen(p->parent->name))==0){
     for(int i=0;i<sys_length;i++){
       traced[i]=0;
     }
@@ -69,7 +70,7 @@ sys_trace(void){
     }
     return 0;
   }
-  while(mask>0 && count<24){
+  while(mask>0 && count<26){
     if((mask&1)==1){
       traced[count]=1;
     }
@@ -82,6 +83,8 @@ sys_trace(void){
   }
   //#endif
 //  #endif
+
+
 
   struct proc *p=myproc();
   if(p->parent){

@@ -121,7 +121,7 @@ struct proc {
   int qno;                     //indicates which queue the prcoess belongs to
   int age;                     //max contionous wait time the process has not been scheduled
   int burst;                   //the current burst time of a process in a queue
-  
+  int qt[5];                   //amount of time spent in a particular queue
 
 
 };
