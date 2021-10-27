@@ -196,6 +196,7 @@ clockintr()
     acquire(&p->lock);
     if(p->state==RUNNING){
       p->run_time++;
+      p->qt[p->qno]++;
       p->burst++;
     }
     if(p->state==SLEEPING){

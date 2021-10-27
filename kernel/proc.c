@@ -98,6 +98,7 @@ void promote(struct proc *p){
       p->qno=curr_q-1;
       p->burst=0;
       p->age=0;
+      printf("-----------------------------------------\n");
     }
   }
 }
@@ -244,6 +245,10 @@ freeproc(struct proc *p)
   p->chan = 0;
   p->killed = 0;
   p->xstate = 0;
+  int i=0;
+  for(i=0;i<5;i++){
+    p->qt[i]=0;
+  }
   p->state = UNUSED;
 }
 
@@ -944,6 +949,7 @@ void procdump(void)
   char *state;
 
   printf("\n");
+  printf("PID\tpriority\tstate\trtime\twtime\tq0\tq1\tq2\tq3\tq4\n");
   for (p = proc; p < &proc[NPROC]; p++)
   {
     if (p->state == UNUSED)
@@ -952,7 +958,7 @@ void procdump(void)
       state = states[p->state];
     else
       state = "???";
-    printf("%d %s %s", p->pid, state, p->name);
+    printf("%d \t%d\t\t%s    %d \t %d \t %d \t %d \t %d \t %d \t %d\n", p->pid,p->qno, state,p->run_time,p->age,p->qt[0],p->qt[1],p->qt[2],p->qt[3],p->qt[4]);
     printf("\n");
   }
 }
