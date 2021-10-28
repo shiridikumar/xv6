@@ -113,7 +113,7 @@ struct proc {
   uint end_time;               //end time of the process
   uint wait_time;              //waiting time of the process   
   uint run_time;               //running time for the process
-  uint nice;                   //niceness values
+  int nice;                   //niceness values
   int dp;                      //dynamic priority
   int sp;                      //static priority
   int sleep_time;              //sleep time
