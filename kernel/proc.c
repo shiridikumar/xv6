@@ -48,7 +48,6 @@ void proc_mapstacks(pagetable_t kpgtbl)
   }
 }
 
-
 void demote(struct proc *p){
   int curr_q=p->qno;
   int i=0;
@@ -80,6 +79,7 @@ void promote(struct proc *p){
   int i=0;
   int ind=queue_tops[curr_q];
   if(curr_q!=0){
+   
     if(queue_tops[curr_q-1]!=NPROC){
       mlfq[curr_q-1][queue_tops[curr_q-1]]=p;
       queue_tops[curr_q-1]++;
@@ -98,7 +98,6 @@ void promote(struct proc *p){
       p->qno=curr_q-1;
       p->burst=0;
       p->age=0;
-      printf("-----------------------------------------\n");
     }
   }
 }
@@ -221,8 +220,9 @@ found:
   p->age=0;
   if(queue_tops[0]<NPROC){
     mlfq[0][queue_tops[0]]=p;
+    queue_tops[0]++;
   }
-  queue_tops[0]++;
+
   return p;
 }
 
@@ -467,7 +467,19 @@ void exit(int status)
   p->xstate = status;
   p->state = ZOMBIE;
   p->end_time=ticks;
-
+  int cur_q=p->qno;
+  int i=0;
+  int ind=NPROC;
+  for(i=0;i<queue_tops[cur_q];i++){
+    if(mlfq[cur_q][i]->pid==p->pid){
+      ind=i;
+      break;
+    }
+  }
+  for(i=ind;i<queue_tops[cur_q]-1;i++){
+    mlfq[cur_q][i]=mlfq[cur_q][i+1];
+  }
+  queue_tops[cur_q]--;
   release(&wait_lock);
 
   // Jump into the scheduler, never to return.
@@ -701,10 +713,8 @@ void scheduler(void)
       for(j=0;j<queue_tops[i];j++){
         p=mlfq[i][j];
         acquire(&p->lock);
-        if(p->state==RUNNABLE){
-          if(p->age > 10){
-            promote(p);
-           }
+        if(p->age>10){
+          promote(p);
         }
         release(&p->lock);
       }
@@ -841,6 +851,7 @@ void sleep(void *chan, struct spinlock *lk)
   for(i=ind;i<queue_tops[cur_q]-1;i++){
     mlfq[cur_q][i]=mlfq[cur_q][i+1];
   }
+  queue_tops[cur_q]--;
   sched();
   // Tidy up.
   p->chan = 0;
@@ -959,6 +970,14 @@ void procdump(void)
     else
       state = "???";
     printf("%d \t%d\t\t%s    %d \t %d \t %d \t %d \t %d \t %d \t %d\n", p->pid,p->qno, state,p->run_time,p->age,p->qt[0],p->qt[1],p->qt[2],p->qt[3],p->qt[4]);
+
+
     printf("\n");
   }
+      printf("q0 members\n");
+    int i=0;
+    printf("%d\n",queue_tops[0]);
+  for(i=0;i<queue_tops[0];i++){
+      printf("%d\t",mlfq[0][i]->pid);
+    }
 }

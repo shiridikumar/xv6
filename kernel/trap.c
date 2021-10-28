@@ -203,6 +203,9 @@ clockintr()
       p->sleep_time++;
       p->age++;
     }
+    if(p->state==RUNNABLE){
+      p->age++;
+    }
     release(&p->lock);
   }
   /*

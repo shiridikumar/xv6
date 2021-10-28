@@ -18,18 +18,19 @@ int main() {
       if (pid == 0) {
 #ifndef FCFS
           if (n < IO) {
-            sleep(200); // IO bound processes
+            sleep(200); 
+            // IO bound processes
           } else {
 #endif
             for (volatile int i = 0; i < 1000000000; i++) {} // CPU bound process 
 #ifndef FCFS
           }
 #endif
-          printf("Process %d finished\n", n);
+          printf("%d\n\n", n);
           exit(0);
       } else {
 #ifdef PBS
-        //setpriority(80, pid); // Will only matter for PBS, set lower priority for IO bound processes 
+        setpriority(80, pid); // Will only matter for PBS, set lower priority for IO bound processes 
 #endif
       }
   }
