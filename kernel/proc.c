@@ -329,7 +329,6 @@ void userinit(void)
 
   p->state = RUNNABLE;
   p->creation_time=0;
-
   release(&p->lock);
 }
 
@@ -666,7 +665,7 @@ void scheduler(void)
             continue;
           }
           else if(p->dp==curr){
-            if(p->sch_no > (proc+ind)->sch_no){
+            if(p->sch_no < (proc+ind)->sch_no){
               if(ind!=-1){
                 //printf("locked %d %d %d %d %d\n",p->dp,(proc+ind)->dp,p->pid,(proc+ind)->pid,ind);
                 release(&(proc+ind)->lock);
@@ -957,10 +956,16 @@ void procdump(void)
       [ZOMBIE] "zombie"};
   struct proc *p;
   char *state;
-
+  state="";
   printf("\n");
   #ifdef MLFQ
   printf("PID\tPriority\tState\trtime\twtime\tq0\tq1\tq2\tq3\tq4\n");
+  #endif
+  #ifdef FCFS
+  printf("PID\tState\trtime\twtime\tctime\n");
+  #endif
+  #ifdef RR
+  printf("PID\tState\trtime\twtime\n");
   #endif
   #ifdef PBS
   printf("PID\tpriority\tstate\trtime\twtime\tnrun\ttemp\tsp\tnice\n");
@@ -986,6 +991,12 @@ void procdump(void)
     }
 
     printf("%d \t%d\t\t%s\t%d\t%d\t%d\t%d\t%d\t%d\t%d\n",p->pid,p->dp,state,p->run_time,ticks-p->creation_time-p->run_time,p->sch_no,temp,p->sp,p->nice,p->sleep_time);
+    #endif
+    #ifdef FCFS
+    printf("%d \t%s\t%d\t%d\t%d\n",p->pid,state,p->run_time,ticks-p->run_time-p->creation_time,p->creation_time);
+    #endif
+    #ifdef RR
+    printf("%d \t%s\t%d\t%d\n",p->pid,state,p->run_time,ticks-p->run_time-p->creation_time);
     #endif
     printf("\n");
   }
