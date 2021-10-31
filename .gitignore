@@ -9,6 +9,7 @@ vectors.S
 bootblock
 entryother
 initcode
+mkfs
 initcode.out
 kernelmemfs
 kernel/kernel
