@@ -733,6 +733,7 @@ void scheduler(void)
         if(p->state==RUNNABLE){
           p->state = RUNNING;
           p->age=0;
+          p->sch_no++;
           c->proc = p;
           current_executing_q=i;
           swtch(&c->context, &p->context);
@@ -844,8 +845,6 @@ void sleep(void *chan, struct spinlock *lk)
 
   p->state = SLEEPING;
   int cur_q=p->qno;
-  p->sleep_time++;
-  p->age++;
   int i=0;
   int ind=queue_tops[cur_q];
   for(i=0;i<queue_tops[cur_q];i++){
