@@ -203,6 +203,9 @@ clockintr()
     if(p->state==SLEEPING){
       p->sleep_time++;
       p->age++;
+      if(p->pid>7){
+        printf("*************************\n");
+      }
     }
     if(p->state==RUNNABLE){
       p->age++;

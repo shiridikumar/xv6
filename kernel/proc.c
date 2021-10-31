@@ -465,6 +465,7 @@ void exit(int status)
 
   p->xstate = status;
   p->state = ZOMBIE;
+  p->qno=-1;
   p->end_time=ticks;
   int cur_q=p->qno;
   int i=0;
@@ -843,6 +844,8 @@ void sleep(void *chan, struct spinlock *lk)
 
   p->state = SLEEPING;
   int cur_q=p->qno;
+  p->sleep_time++;
+  p->age++;
   int i=0;
   int ind=queue_tops[cur_q];
   for(i=0;i<queue_tops[cur_q];i++){
