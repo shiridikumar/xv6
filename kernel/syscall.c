@@ -169,7 +169,7 @@ syscall(void)
     if(traced[num] && p->parent->trace_flag){
       //char endstr[]=") -> ";
       int ar[]={p->trapframe->a0,p->trapframe->a1,p->trapframe->a2,p->trapframe->a3,p->trapframe->a4,p->trapframe->a5,p->trapframe->a6,p->trapframe->a7};
-      printf("syscall %s (",sysnames[num]);
+      printf("%d: syscall %s (",p->pid,sysnames[num]);
       printf("%d",arg0);
 
       for(int j=1;j<sysarg[num];j++){
