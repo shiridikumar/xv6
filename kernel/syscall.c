@@ -6,9 +6,9 @@
 #include "proc.h"
 #include "syscall.h"
 #include "defs.h"
-extern int traced[26];
-extern char sysnames[26][30];
-extern int sysarg[26];
+extern int traced[25];
+extern char sysnames[25][30];
+extern int sysarg[25];
 
 // Fetch the uint64 at addr from the current process.
 int
@@ -125,7 +125,6 @@ extern uint64 sys_unlink(void);
 extern uint64 sys_wait(void);
 extern uint64 sys_write(void);
 extern uint64 sys_uptime(void);
-extern uint64 sys_show(void);
 extern uint64 sys_trace(void);
 extern uint64 sys_waitx(void);
 extern uint64 sys_set_priority(void);
@@ -152,7 +151,6 @@ static uint64 (*syscalls[])(void) = {
 [SYS_link]    sys_link,
 [SYS_mkdir]   sys_mkdir,
 [SYS_close]   sys_close,
-[SYS_show]    sys_show,
 [SYS_trace]   sys_trace,
 [SYS_waitx]   sys_waitx,  
 [SYS_set_priority]  sys_set_priority,

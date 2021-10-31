@@ -648,12 +648,17 @@ void scheduler(void)
     for(p=proc;p< &proc[NPROC];p++){
       acquire(&p->lock);
       if(p->state==RUNNABLE ){
-          p->nice=(p->sleep_time*10/(p->sleep_time+p->dup_run));
+        if(p->sleep_time==0 && p->dup_run==0){
+          p->nice=((p->sleep_time*10)/(p->sleep_time+p->dup_run));
           int temp=((p->sp-p->nice+5)<=100)?p->sp-p->nice+5:100;
           p->dp=(temp>0)?temp:0;
+        }
+        else
+        {
+          p->dp=p->sp;
+        }
            //printf("%d %d %d %d\n",p->dp,(proc+ind)->dp,p->pid,(proc+ind)->pid);
           if(p->dp < curr){
-            
             if(ind!=-1){
               release(&(proc+ind)->lock);
             }
@@ -695,6 +700,7 @@ void scheduler(void)
     {
       (proc+ind)->sch_no++;
       (proc+ind)->state=RUNNING;
+      //printf("pid %d dp %d sp %d sleep %d run %d\n",(proc+ind)->pid,(proc+ind)->dp,(proc+ind)->sp,(proc+ind)->sleep_time,(proc+ind)->dup_run);
       c->proc=(proc+ind);
       swtch(&c->context,&(proc+ind)->context);
       c->proc=0;
@@ -845,6 +851,7 @@ void sleep(void *chan, struct spinlock *lk)
       break;
     }
   }
+
   for(i=ind;i<queue_tops[cur_q]-1;i++){
     mlfq[cur_q][i]=mlfq[cur_q][i+1];
   }
@@ -877,6 +884,7 @@ void wakeup(void *chan)
           queue_tops[p->qno]++;
         }
       }
+
       release(&p->lock);
     }
   }
@@ -948,26 +956,26 @@ int either_copyin(void *dst, int user_src, uint64 src, uint64 len)
 void procdump(void)
 {
   static char *states[] = {
-      [UNUSED] "unused",
-      [SLEEPING] "sleep ",
-      [RUNNABLE] "runble",
-      [RUNNING] "run   ",
-      [ZOMBIE] "zombie"};
+      [UNUSED] "unused  ",
+      [SLEEPING] "sleeping",
+      [RUNNABLE] "runnable",
+      [RUNNING] "running ",
+      [ZOMBIE] "zombie  "};
   struct proc *p;
   char *state;
   state="";
   printf("\n");
   #ifdef MLFQ
-  printf("PID\tPriority\tState\trtime\twtime\tq0\tq1\tq2\tq3\tq4\n");
+  printf("PID\tPriority\tState\t\trtime\twtime\tq0\tq1\tq2\tq3\tq4\n");
   #endif
   #ifdef FCFS
-  printf("PID\tState\trtime\twtime\tctime\n");
+  printf("PID\tState\t\trtime\twtime\tctime\n");
   #endif
   #ifdef RR
-  printf("PID\tState\trtime\twtime\n");
+  printf("PID\tState\t\trtime\twtime\n");
   #endif
   #ifdef PBS
-  printf("PID\tpriority\tstate\trtime\twtime\tnrun\n");
+  printf("PID\tpriority\tstate\t\trtime\twtime\tnrun\n");
   #endif
   for (p = proc; p < &proc[NPROC]; p++)
   {
@@ -978,18 +986,17 @@ void procdump(void)
     else
       state = "???";
     #ifdef MLFQ
-    printf("%d \t%d\t\t%s    %d \t %d \t %d \t %d \t %d \t %d \t %d\n", p->pid,p->qno, state,p->run_time,p->age,p->qt[0],p->qt[1],p->qt[2],p->qt[3],p->qt[4]);
+    printf("%d \t%d\t\t%s \t %d \t %d \t %d \t %d \t %d \t %d \t %d\n", p->pid,p->qno, state,p->run_time,p->age,p->qt[0],p->qt[1],p->qt[2],p->qt[3],p->qt[4]);
     #endif 
     #ifdef PBS
-    p->nice=(p->sleep_time*10/(p->sleep_time+p->dup_run));
+    p->nice=((p->sleep_time*10)/(p->sleep_time+p->dup_run));
     int temp=((p->sp-p->nice+5)<=100)?p->sp-p->nice+5:100;
     p->dp=(temp>0)?temp:0;
     if(p->sleep_time==0 && p->run_time==0){
       p->dp=p->sp;
       p->nice=5;
     }
-
-    printf("%d \t%d\t\t%s\t%d\t%d\t%d\n",p->pid,p->dp,state,p->run_time,ticks-p->creation_time-p->run_time,p->sch_no,temp,p->sp,p->nice,p->sleep_time);
+    printf("%d \t%d\t\t%s\t%d\t%d\t %d\n",p->pid,p->dp,state,p->run_time,ticks-p->creation_time-p->run_time,p->sch_no,p->sp,p->sleep_time);
     #endif
     #ifdef FCFS
     printf("%d \t%s\t%d\t%d\t%d\n",p->pid,state,p->run_time,ticks-p->run_time-p->creation_time,p->creation_time);

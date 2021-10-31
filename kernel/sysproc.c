@@ -6,7 +6,7 @@
 #include "memlayout.h"
 #include "spinlock.h"
 #include "proc.h"
-extern int traced[26];
+extern int traced[25];
 extern int sys_length;
 extern struct proc proc[NPROC];
 
@@ -29,21 +29,7 @@ sys_exit(void)
   return 0;  // not reached
 }
 
-uint64
-sys_show(void){
-  uint64 p;
-  if(argaddr(0,&p)<0){
-    return -1;
-  }
-  uint64 ad;
-  if(argaddr(1,&ad)<0){
-    return -1;
-  }
-  /*else{
-    printf("%s\n",argstr(22,(char *)ad,20));
-  }*/
-  return p;
-}
+
 uint64
 sys_getpid(void)
 {
@@ -70,7 +56,7 @@ sys_trace(void){
     }
     return 0;
   }
-  while(mask>0 && count<26){
+  while(mask>0 && count<25){
     if((mask&1)==1){
       traced[count]=1;
     }

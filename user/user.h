@@ -23,7 +23,6 @@ int getpid(void);
 char* sbrk(int);
 int sleep(int);
 int uptime(void);
-int* show(int*,char*);
 int trace(int);
 int waitx(int,int*,int*);
 int set_priority(int,int);

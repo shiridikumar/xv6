@@ -36,7 +36,6 @@ entry("getpid");
 entry("sbrk");
 entry("sleep");
 entry("uptime");
-entry("show");
 entry("trace");
 entry("waitx");
 entry("set_priority")
