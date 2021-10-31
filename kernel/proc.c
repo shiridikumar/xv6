@@ -648,8 +648,7 @@ void scheduler(void)
     for(p=proc;p< &proc[NPROC];p++){
       acquire(&p->lock);
       if(p->state==RUNNABLE ){
-         
-          p->nice=(p->sleep_time*10/(p->sleep_time+p->run_time));
+          p->nice=(p->sleep_time*10/(p->sleep_time+p->dup_run));
           int temp=((p->sp-p->nice+5)<=100)?p->sp-p->nice+5:100;
           p->dp=(temp>0)?temp:0;
            //printf("%d %d %d %d\n",p->dp,(proc+ind)->dp,p->pid,(proc+ind)->pid);
@@ -968,7 +967,7 @@ void procdump(void)
   printf("PID\tState\trtime\twtime\n");
   #endif
   #ifdef PBS
-  printf("PID\tpriority\tstate\trtime\twtime\tnrun\ttemp\tsp\tnice\n");
+  printf("PID\tpriority\tstate\trtime\twtime\tnrun\n");
   #endif
   for (p = proc; p < &proc[NPROC]; p++)
   {
@@ -982,7 +981,7 @@ void procdump(void)
     printf("%d \t%d\t\t%s    %d \t %d \t %d \t %d \t %d \t %d \t %d\n", p->pid,p->qno, state,p->run_time,p->age,p->qt[0],p->qt[1],p->qt[2],p->qt[3],p->qt[4]);
     #endif 
     #ifdef PBS
-    p->nice=(p->sleep_time*10/(p->sleep_time+p->run_time));
+    p->nice=(p->sleep_time*10/(p->sleep_time+p->dup_run));
     int temp=((p->sp-p->nice+5)<=100)?p->sp-p->nice+5:100;
     p->dp=(temp>0)?temp:0;
     if(p->sleep_time==0 && p->run_time==0){
@@ -990,7 +989,7 @@ void procdump(void)
       p->nice=5;
     }
 
-    printf("%d \t%d\t\t%s\t%d\t%d\t%d\t%d\t%d\t%d\t%d\n",p->pid,p->dp,state,p->run_time,ticks-p->creation_time-p->run_time,p->sch_no,temp,p->sp,p->nice,p->sleep_time);
+    printf("%d \t%d\t\t%s\t%d\t%d\t%d\n",p->pid,p->dp,state,p->run_time,ticks-p->creation_time-p->run_time,p->sch_no,temp,p->sp,p->nice,p->sleep_time);
     #endif
     #ifdef FCFS
     printf("%d \t%s\t%d\t%d\t%d\n",p->pid,state,p->run_time,ticks-p->run_time-p->creation_time,p->creation_time);

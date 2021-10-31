@@ -198,6 +198,7 @@ clockintr()
       p->run_time++;
       p->qt[p->qno]++;
       p->burst++;
+      p->dup_run++;
     }
     if(p->state==SLEEPING){
       p->sleep_time++;

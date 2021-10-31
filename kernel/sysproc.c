@@ -143,6 +143,8 @@ sys_set_priority(void){
   for(p=proc;p<&proc[NPROC];p++){
     if(p->pid==pid){
       p->sp=priority;
+      p->sleep_time=0;
+      p->dup_run=0;
       printf("changed static priority of pid %d to %d\n",pid,priority);
     }
   }

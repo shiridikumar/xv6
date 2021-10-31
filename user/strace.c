@@ -22,7 +22,7 @@ void main(int argc ,char *args[]){
         arr[i]=args[i+2];
     }
     arr[argc-2]='\0';
-    trace(atoi(args[1]),argc-1,args+1);
+    trace(atoi(args[1]));
     exec(arr[0],arr);
     exit(0);
 }

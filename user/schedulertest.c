@@ -26,7 +26,7 @@ int main() {
 #ifndef FCFS
           }
 #endif
-          printf("%d\n\n", n);
+          printf("process %d with pid %d finished\n",n,getpid());
           exit(0);
       } else {
 #ifdef PBS
